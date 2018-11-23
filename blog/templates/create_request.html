@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block header %}
+    <nav class="navbar navbar-light bg-light justify-content-between">
+        <a class="navbar-brand">Teqniksoft</a>
+        <form class="form-inline">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </nav>
+{% endblock header %}
+
+
+{% block main %}
+    <div class="container">
+
+        <div class="row mb-2 mt-2">
+            <div class="col-lg-12">
+                <h1>Out of office</h1>
+            </div>
+        </div>
+
+
+        <div class="row mb-2 mt-2">
+            <div class="col-lg-12">
+                Vacation remaining: <span class="badge badge-pill badge-success">{{ vacation_days_left }}</span> days.
+
+            </div>
+        </div>
+
+
+        <div class="row mb-2">
+            <div class="col-lg-6">
+                <form method="post" novalidate>
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <div class="col-lg-4">
+                            {{ form.start_date|as_crispy_field }}
+                        </div>
+                        <div class="col-lg-4">
+                            {{ form.end_date|as_crispy_field }}
+                        </div>
+                        <div class="col-lg-4">
+                            {{ form.request_type|as_crispy_field }}
+                        </div>
+                        <div class="col-lg-12">
+                            {{ form.message|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input type="submit" class="btn btn-primary" value="Create">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-6">
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    {% for requests_items in requests %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if forloop.first %}active{% endif %}"
+                               id="pills-{{ requests_items.id }}-tab" data-toggle="pill"
+                               href="#pills-{{ requests_items.id }}" role="tab"
+                               aria-controls="pills-{{ requests_items.id }}"
+                               aria-selected="true">{{ requests_items.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+
+                    {% for requests_items in requests %}
+                        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+                             id="pills-{{ requests_items.id }}"
+                             role="tabpanel" aria-labelledby="pills-{{ requests_items.id }}-tab">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h2>{{ requests_items.title }}</h2>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+
+                                    <div class="p-3 bg-light rounded">
+                                        {% for request in requests_items.items %}
+                                            <div class="row">
+                                                <div class="col">
+                                                    <span class="badge badge-{{ request.css_class }}">{{ request.request_status }}</span>
+                                                </div>
+                                                <div class="col">
+                                                    <p class="media-body small pb-3 mb-0 lh-125">{{ request.start_date }} - {{ request.end_date }}</p>
+                                                </div>
+                                            </div>
+                                            <p class="border-bottom pb-3 mb-1 border-gray">{{ request.message }}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock main %}
+
+
+{% block scripts %}
+    <script type="text/javascript">
+        $('#id_start_date').datepicker({
+            weekStart: 1,
+            daysOfWeekHighlighted: "6,0",
+            autoclose: true,
+            todayHighlight: true,
+        });
+        $('#id_start_date').datepicker("setDate", new Date());
+
+        $('#id_end_date').datepicker({
+            weekStart: 1,
+            daysOfWeekHighlighted: "6,0",
+            autoclose: true,
+            todayHighlight: true,
+        });
+        $('#id_end_date').datepicker("setDate", new Date());
+
+
+    </script>
+{% endblock scripts %}
